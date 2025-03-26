@@ -4,7 +4,7 @@ import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 
 import { FaUser, FaLock } from "react-icons/fa";
-import { motion } from "framer-motion";
+// import { motion } from "framer-motion";
 import Background from "../images/login_background.jpg";
 
 export default function LoginPage() {
