@@ -100,6 +100,8 @@ const StudentForm = ({ onSuccess, initialData }) => {
       validationErrors.birthday = "Vui lòng chọn ngày sinh";
     } else {
       const birthDate = new Date(formData.birthday);
+      const eighteenYearsAgo = new Date();
+      eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
       if (birthDate > eighteenYearsAgo) {
         validationErrors.birthday = "Sinh viên phải đủ 18 tuổi trở lên";
       }
@@ -112,9 +114,13 @@ const StudentForm = ({ onSuccess, initialData }) => {
 
     setErrors({});
 
+    const formattedBirthday = formData.birthday
+      ? formatDateToSend(formData.birthday)
+      : "";
+
     const dataToSend = {
       ...formData,
-      birthday: formData.birthday ? formatDateToSend(formData.birthday) : "", // Format trước khi gửi
+      birthday: formattedBirthday, // Sử dụng ngày sinh đã format
     };
 
     try {
@@ -153,14 +159,17 @@ const StudentForm = ({ onSuccess, initialData }) => {
     }
   };
 
-  // Hàm format ngày thành DD/MM/YYYY
+  /// Hàm format ngày thành DD/MM/YYYY
   const formatDateToSend = (dateString) => {
+    console.log("formatDateToSend nhận:", dateString); // Kiểm tra đầu vào
     if (!dateString) return "";
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    const formatted = `${day}/${month}/${year}`; // Sửa ở đây: trả về chuỗi đúng định dạng
+    console.log("formatDateToSend trả về:", formatted); // Kiểm tra đầu ra
+    return formatted;
   };
 
   const availableMajors = majorsByDepartment[formData.department] || [];

@@ -81,13 +81,14 @@ app.post("/api/students", async (req, res) => {
     birthday,
     department,
     major,
-    password,
+    // password, // Không cần lấy password từ body nữa
   } = req.body;
+  const plainPassword = generatePasswordFromBirthday(birthday);
 
-  // Validate định dạng phía backend
+  // Validate định dạng phía backend (giữ nguyên)
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegex = /^\d{10}$/;
-  const nameRegex = /^[\p{L}\s]+$/u; // họ tên tiếng Việt
+  const nameRegex = /^[\p{L}\s]+$/u;
 
   if (!emailRegex.test(email)) {
     return res.status(400).json({ message: "Email không hợp lệ!" });
@@ -106,7 +107,7 @@ app.post("/api/students", async (req, res) => {
   let birthDate;
   if (birthday) {
     const [day, month, year] = birthday.split("/");
-    birthDate = new Date(`${year}-${month}-${day}`);
+    birthDate = new Date(`${year}-${month}-${day}T00:00:00.000Z`); // Chuyển đổi thủ công sang Date
   }
 
   try {
@@ -128,10 +129,10 @@ app.post("/api/students", async (req, res) => {
       full_name,
       email,
       phone,
-      birthday: birthDate,
+      birthday: birthDate, // Sử dụng birthDate đã chuyển đổi
       department,
       major,
-      password: password || (birthday ? birthday.replaceAll("/", "") : ""),
+      password: plainPassword,
     });
 
     await newStudent.save();
@@ -307,6 +308,8 @@ app.get("/api/lecturers/departments", async (req, res) => {
 });
 
 // Thêm giảng viên mới
+// Thêm giảng viên mới
+// Thêm giảng viên mới
 app.post("/api/lecturers", async (req, res) => {
   const {
     lecturer_id,
@@ -317,7 +320,7 @@ app.post("/api/lecturers", async (req, res) => {
     department,
     password,
   } = req.body;
-
+  const plainPassword = generatePasswordFromBirthday(birthday);
   // Validate định dạng phía backend (tương tự sinh viên)
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegex = /^\d{10}$/;
@@ -340,7 +343,7 @@ app.post("/api/lecturers", async (req, res) => {
   let birthDate;
   if (birthday) {
     const [day, month, year] = birthday.split("/");
-    birthDate = new Date(`${year}-${month}-${day}`);
+    birthDate = new Date(`${year}-${month}-${day}T00:00:00.000Z`); // Chuyển đổi thủ công sang Date
   }
 
   try {
@@ -362,9 +365,9 @@ app.post("/api/lecturers", async (req, res) => {
       full_name,
       email,
       phone,
-      birthday: birthDate,
+      birthday: birthDate, // Sử dụng birthDate đã chuyển đổi
       department,
-      password: password || (birthday ? birthday.replaceAll("/", "") : ""),
+      password: plainPassword,
     });
 
     await newLecturer.save();
@@ -487,6 +490,12 @@ app.get("/api/lecturers/:id", async (req, res) => {
       .json({ message: "Lỗi server khi truy xuất thông tin giảng viên" });
   }
 });
+
+const generatePasswordFromBirthday = (birthday) => {
+  if (!birthday) return "";
+  const [day, month, year] = birthday.split("/");
+  return `${day}${month}${year}`;
+};
 
 // Khởi động server
 app.listen(5000, () => console.log("Server chạy tại http://localhost:5000"));
